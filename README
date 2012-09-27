@@ -1,0 +1,27 @@
+Dual port swapping memory
+=========================
+
+The VHDL simulation component allows to simulate testbenchs that use
+huge memories. This is helpful sometimes because some simulators are
+buggy and consumes all the physical RAM of the PC.
+
+Generic parameters:
+
+* MEM_CAP  - total capacity of the memory (the address will be log2(MEM_CAP) wide).
+* MEM_LINE - size of one memory 'partition'; this is the memory loaded in during
+             the simulation, the rest of the memory is on the disk.
+* DWIDTH   - data width of one entry in the memory (word access vs. byte access).
+* PREFIX   - prefix of generated files on the disk.
+
+Ports:
+
+* CLK - clock, there is just one Clock domain to simplify the implementation.
+* RST - synchronous reset.
+
+* MEM_A[01]    - address to read/write the memory.
+* MEM_DIN[01]  - data to be written.
+* MEM_DOUT[01] - data to be read.
+* MEM_WE[01]   - write-enable.
+* MEM_RE[01]   - read-enable.
+* MEM_DRDY[01] - data ready to read (MEM_DOUT is valid).
+
