@@ -41,3 +41,16 @@ port (
 	MEM_DRDY1 : out std_logic
 );
 end entity;
+
+architecture full of mem_swapping is
+
+	constant ADDRW : integer := log2(MEM_CAP);
+
+	subtype memaddr_t is std_logic_vector(ADDRW  - 1 downto 0);
+	subtype memcell_t is std_logic_vector(DWIDTH - 1 downto 0);
+	type mempart_t is array(0 to MEM_LINE - 1) of memcell_t;
+	type memfile_t is file of memcell_t;
+
+begin
+
+end architecture;
