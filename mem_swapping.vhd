@@ -116,6 +116,27 @@ architecture full of mem_swapping is
 		end loop;
 	end procedure;
 
+	procedure mem_access(mem : inout mempart_t; base : inout integer;
+	                     addr : in memaddr_t; dirty : inout boolean) is
+		variable newbase : integer;
+	begin
+		newbase := to_base(addr);
+
+		if newbase /= base then
+			report "[MEM] Reloading memory block "
+			     & integer'image(base)
+			     & " => "
+			     & integer'image(newbase)
+			     & " ("
+			     & integer'image(conv_integer(addr))
+			     & ")";
+
+			mem_save(base, mem, dirty);
+			mem_load(newbase, mem, dirty);
+			base := newbase;
+		end if;
+	end procedure;
+
 begin
 
 end architecture;
