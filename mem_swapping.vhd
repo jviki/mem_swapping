@@ -175,4 +175,8 @@ architecture full of mem_swapping is
 
 begin
 
+	assert (MEM_CAP mod MEM_LINE) = 0
+		report "MEM_LINE must be multiple of MEM_CAP"
+		severity failure;
+
 end architecture;
