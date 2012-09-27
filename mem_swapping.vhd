@@ -97,6 +97,25 @@ architecture full of mem_swapping is
 		end if;
 	end procedure;
 
+	procedure mem_save(base : in integer; mem : in mempart_t; dirty : in boolean) is
+		file fd : memfile_t;
+		variable fstat : file_open_status;
+	begin
+		if base = -1 or dirty = false then
+			return;
+		end if;
+
+		file_open(fstat, fd, get_memname(base), WRITE_MODE);
+		
+		assert fstat = OPEN_OK
+			report "[MEM] Can not open file " & get_memname(base)
+			severity failure;
+
+		for i in mem'range loop
+			write(fd, mem(i));
+		end loop;
+	end procedure;
+
 begin
 
 end architecture;
