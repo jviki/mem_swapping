@@ -67,6 +67,36 @@ architecture full of mem_swapping is
 		return (conv_integer(addr) / MEM_LINE) * MEM_LINE;
 	end function;
 
+	--------------------------------------------------------
+
+	procedure mem_load(base : in integer; mem : out mempart_t; dirty : out boolean) is
+		file fd : memfile_t;
+		variable fstat : file_open_status;
+	begin
+		file_open(fstat, fd, get_memname(base), READ_MODE);
+		
+		if fstat /= OPEN_OK then
+			report "[MEM] Can not open file " & get_memname(base) & ", init to X";
+
+			for i in mem'range loop
+				mem(i) := (others => 'X');
+			end loop;
+		else
+			for i in mem'range loop
+				if endfile(fd) then
+					report "[MEM] File is shorter then memory, finished at " & integer'image(i);
+					exit;
+				end if;
+
+				read(fd, mem(i));
+			end loop;
+
+--			report "[MEM] Memory reloaded";
+			dirty := false;
+			file_close(fd);
+		end if;
+	end procedure;
+
 begin
 
 end architecture;
