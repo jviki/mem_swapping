@@ -62,6 +62,11 @@ architecture full of mem_swapping is
 		return PREFIX & "/mem_" & integer'image(base);
 	end function;
 
+	function to_base(addr : in memaddr_t) return integer is
+	begin
+		return (conv_integer(addr) / MEM_LINE) * MEM_LINE;
+	end function;
+
 begin
 
 end architecture;
