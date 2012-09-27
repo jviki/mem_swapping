@@ -51,6 +51,17 @@ architecture full of mem_swapping is
 	type mempart_t is array(0 to MEM_LINE - 1) of memcell_t;
 	type memfile_t is file of memcell_t;
 
+	--------------------------------------------------------
+
+	function get_memname(base : in integer) return string is
+	begin
+		assert base >= 0
+			report "[MEM] Invalid base for access memory: " & integer'image(base)
+			severity failure;
+
+		return PREFIX & "/mem_" & integer'image(base);
+	end function;
+
 begin
 
 end architecture;
