@@ -153,6 +153,20 @@ architecture full of mem_swapping is
 		data := mem(addroff);
 	end procedure;
 
+	procedure mem_write(mem  : inout mempart_t; base : inout integer;
+	                    addr : in memaddr_t;    data : in memcell_t;
+	                    dirty : inout boolean) is
+		variable addrbase : integer;
+		variable addroff  : integer;
+	begin
+		addrbase := to_base(addr);
+		addroff  := conv_integer(addr) - addrbase;
+
+		mem_access(mem, base, addr, dirty);
+		mem(addroff) := data;
+		dirty := true;
+	end procedure;
+
 begin
 
 end architecture;
