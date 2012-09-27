@@ -179,4 +179,62 @@ begin
 		report "MEM_LINE must be multiple of MEM_CAP"
 		severity failure;
 
+	--------------------------------------------------------
+
+	mem_writep : process(CLK, MEM_WE0, MEM_A0, MEM_DIN0, MEM_WE1, MEM_A1, MEM_DIN1)
+		variable addr : memaddr_t;
+		variable din  : memcell_t;
+	begin
+		if rising_edge(CLK) then
+			if MEM_WE0 = '1' then
+				addr := MEM_A0;
+				din  := MEM_DIN0;
+
+				mem_write(mem, base, addr, din, dirty);
+			end if;
+
+			if MEM_WE1 = '1' then
+				addr := MEM_A1;
+				din  := MEM_DIN1;
+
+				mem_write(mem, base, addr, din, dirty);
+			end if;
+		end if;
+	end process;
+
+	mem_readp : process(CLK, MEM_RE0, MEM_A0, MEM_RE1, MEM_A1)
+		variable addr : memaddr_t;
+		variable dout : memcell_t;
+	begin
+		if rising_edge(CLK) then
+			if MEM_RE0 = '1' then
+				addr := MEM_A0;
+
+				mem_read(mem, base, addr, dout, dirty);
+				MEM_DOUT0 <= dout;
+			end if;
+
+			if MEM_RE1 = '1' then
+				addr := MEM_A1;
+
+				mem_read(mem, base, addr, dout, dirty);
+				MEM_DOUT1 <= dout;
+			end if;
+		end if;
+	end process;
+
+	mem_drdyp : process(CLK, MEM_RE0, MEM_RE1)
+	begin
+		if rising_edge(CLK) then
+			if RST = '1' then
+				MEM_DRDY0 <= '0';
+				MEM_DRDY1 <= '0';
+			else
+				MEM_DRDY0 <= MEM_RE0;
+				MEM_DRDY1 <= MEM_RE1;
+			end if;
+		end if;
+	end process;
+
 end architecture;
+
