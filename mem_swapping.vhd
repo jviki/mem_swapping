@@ -167,6 +167,12 @@ architecture full of mem_swapping is
 		dirty := true;
 	end procedure;
 
+	--------------------------------------------------------
+
+	shared variable mem  : mempart_t;
+	shared variable dirty: boolean   := false;
+	shared variable base : integer   := -1;
+
 begin
 
 end architecture;
