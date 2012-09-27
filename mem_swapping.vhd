@@ -137,6 +137,22 @@ architecture full of mem_swapping is
 		end if;
 	end procedure;
 
+	--------------------------------------------------------
+
+	procedure mem_read(mem  : inout mempart_t; base : inout integer;
+	                   addr : in memaddr_t;    data : out memcell_t;
+	                   dirty : inout boolean) is
+
+		variable addrbase : integer;
+		variable addroff  : integer;
+	begin
+		addrbase := to_base(addr);
+		addroff  := conv_integer(addr) - addrbase;
+
+		mem_access(mem, base, addr, dirty);
+		data := mem(addroff);
+	end procedure;
+
 begin
 
 end architecture;
