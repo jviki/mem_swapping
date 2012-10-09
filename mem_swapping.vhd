@@ -29,14 +29,14 @@ port (
 	MEM_A0    : in  std_logic_vector(log2(MEM_CAP) - 1 downto 0);
 	MEM_DIN0  : in  std_logic_vector(DWIDTH - 1 downto 0);
 	MEM_DOUT0 : out std_logic_vector(DWIDTH - 1 downto 0);
-	MEM_WE0   : in  std_logic;
+	MEM_WE0   : in  std_logic_vector(DWIDTH / 8 - 1 downto 0);
 	MEM_RE0	  : in  std_logic;
 	MEM_DRDY0 : out std_logic;
 
 	MEM_A1    : in  std_logic_vector(log2(MEM_CAP) - 1 downto 0);
 	MEM_DIN1  : in  std_logic_vector(DWIDTH - 1 downto 0);
 	MEM_DOUT1 : out std_logic_vector(DWIDTH - 1 downto 0);
-	MEM_WE1   : in  std_logic;
+	MEM_WE1   : in  std_logic_vector(DWIDTH / 8 - 1 downto 0);
 	MEM_RE1	  : in  std_logic;
 	MEM_DRDY1 : out std_logic
 );
@@ -48,6 +48,7 @@ architecture full of mem_swapping is
 
 	subtype memaddr_t is std_logic_vector(ADDRW  - 1 downto 0);
 	subtype memcell_t is std_logic_vector(DWIDTH - 1 downto 0);
+	subtype membe_t   is std_logic_vector(DWIDTH / 8 - 1 downto 0);
 	type mempart_t is array(0 to MEM_LINE - 1) of memcell_t;
 	type memfile_t is file of memcell_t;
 
@@ -155,16 +156,27 @@ architecture full of mem_swapping is
 
 	procedure mem_write(mem  : inout mempart_t; base : inout integer;
 	                    addr : in memaddr_t;    data : in memcell_t;
-	                    dirty : inout boolean) is
+	                    be   : in membe_t;      dirty : inout boolean) is
 		variable addrbase : integer;
 		variable addroff  : integer;
+		variable val      : memcell_t;
 	begin
 		addrbase := to_base(addr);
 		addroff  := conv_integer(addr) - addrbase;
 
 		mem_access(mem, base, addr, dirty);
-		mem(addroff) := data;
-		dirty := true;
+
+		val := mem(addroff);
+		for i in val'range loop
+			if be(i / 8) = '1' then
+				val(i) := data(i);
+			end if;
+		end loop;
+
+		if mem(addroff) /= val then
+			mem(addroff) := val;
+			dirty := true;
+		end if;
 	end procedure;
 
 	--------------------------------------------------------
@@ -186,18 +198,18 @@ begin
 		variable din  : memcell_t;
 	begin
 		if rising_edge(CLK) then
-			if MEM_WE0 = '1' then
+			if MEM_WE0 /= (MEM_WE0'range => '0') then
 				addr := MEM_A0;
 				din  := MEM_DIN0;
 
-				mem_write(mem, base, addr, din, dirty);
+				mem_write(mem, base, addr, din, MEM_WE0, dirty);
 			end if;
 
-			if MEM_WE1 = '1' then
+			if MEM_WE1 /= (MEM_WE1'range => '0') then
 				addr := MEM_A1;
 				din  := MEM_DIN1;
 
-				mem_write(mem, base, addr, din, dirty);
+				mem_write(mem, base, addr, din, MEM_WE1, dirty);
 			end if;
 		end if;
 	end process;
